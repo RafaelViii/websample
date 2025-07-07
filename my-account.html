@@ -170,7 +170,6 @@
       width: 100%;
     }
 
-    /* Make analytics/status panel full width below navbar, no whitespace on sides */
     .status-analytics-row {
       display: flex;
       width: 100%;
@@ -198,7 +197,6 @@
     /* Remove profile card from desktop */
     .profile-card { display: none !important; }
 
-    /* Table styles */
     .machine-table {
       width: 100%;
       border-collapse: separate;
@@ -288,7 +286,6 @@
       margin-top: 2em;
     }
 
-    /* --- RESPONSIVE --- */
     @media (max-width: 1150px) {
       .status-analytics-row { flex-direction: column; }
       .machine-panel { max-width: 100%; }
@@ -304,7 +301,6 @@
         transform: translateX(0);
       }
       .topbar .mobile-menu { display: inline-block; }
-      /* Show profile card in mobile, hide user-info-navbar in navbar */
       .profile-card {
         display: flex !important;
         flex-direction: column;
@@ -320,11 +316,17 @@
         margin: 1.2rem auto 1rem auto;
         max-width: 95%;
       }
+      .profile-card .profile-top {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 1rem;
+      }
       .profile-card .profile-avatar {
-        width: 50px;
-        height: 50px;
+        width: 56px;
+        height: 56px;
         font-size: 1.4em;
-        margin-bottom: 0.2em;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -332,12 +334,15 @@
         background: linear-gradient(135deg,#e3f7e8 40%,#d9ebff 100%);
         color: #2a6dfc;
         font-weight: 700;
+        margin-bottom: 0.2em;
         box-shadow: 0 2px 10px 0 rgba(44,62,80,0.07);
       }
       .profile-card .profile-details {
         align-items: center;
         text-align: center;
         gap: 0.15em;
+        display: flex;
+        flex-direction: column;
       }
       .profile-card .profile-name {
         font-size: 1.1em;
@@ -378,7 +383,6 @@
       }
       .user-info-navbar { display: none !important; }
       .sidebar .logout { display: block; }
-      /* Hide any mobile logo card */
       .mobile-logo-card { display: none !important; }
     }
     @media (max-width: 600px) {
@@ -388,7 +392,6 @@
       .topbar { padding: 0.8rem 0.5rem; min-height: 62px; }
       .profile-card { min-height: 110px; }
     }
-    /* hamburger overlay for sidebar */
     .sidebar-overlay {
       display: none;
       position: fixed;
@@ -400,7 +403,6 @@
     .sidebar.open ~ .sidebar-overlay {
       display: block;
     }
-    /* Hide mobile logo at desktop width */
     .mobile-logo-card { display: none; }
   </style>
 </head>
@@ -428,7 +430,6 @@
     <div class="topbar">
       <button class="mobile-menu" id="menuBtn">&#9776;</button>
       <div>My Machine Dashboard</div>
-      <!-- User info in topbar (desktop only) -->
       <div class="user-info-navbar" id="userInfoNavbar" style="display: flex;">
         <div class="profile-avatar" id="profileAvatarNavbar"></div>
         <div class="profile-details">
@@ -440,7 +441,6 @@
       <div class="username" id="headerUserName" style="display:none;"></div>
     </div>
     <div class="content">
-      <!-- Profile card visible only on mobile -->
       <div class="profile-card" id="profileCard">
         <div class="profile-top">
           <div class="profile-avatar" id="profileAvatar"></div>
@@ -452,7 +452,6 @@
           </div>
         </div>
       </div>
-      <!-- Analytics/status panel, always full width -->
       <div class="status-analytics-row">
         <div class="machine-panel" id="mainContent" style="display:none;">
           <table class="machine-table">
@@ -525,7 +524,6 @@
     }
     function showDashboard() {
       document.getElementById('mainContent').style.display = "flex";
-      // Profile card only visible on mobile; handled by CSS
       document.getElementById('profileCard').style.display = "";
       document.getElementById('errorMsg').style.display = "none";
       showLoader(false);
