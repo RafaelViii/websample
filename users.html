@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Users</title>
+  <style>
+    :root {
+      --sidebar-width: 220px;
+      --primary: #2563eb;
+      --bg: #f4f6fa;
+      --card-bg: #fff;
+      --text: #222;
+      --text-light: #666;
+      --border: #e0e0e0;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--primary);
+      color: #fff;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform 0.3s;
+    }
+    .sidebar .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+    .sidebar nav {
+      flex: 1;
+    }
+    .sidebar nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #fff;
+      padding: 0.7rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+      font-size: 1.04rem;
+      transition: background 0.2s;
+    }
+    .sidebar nav a.active, .sidebar nav a:hover {
+      background: rgba(255,255,255,0.12);
+      font-weight: bold;
+    }
+    .sidebar .logout {
+      margin-top: 2rem;
+      color: #fff;
+      text-align: center;
+      cursor: pointer;
+      font-size: 1rem;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .sidebar .logout:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.32);
+      z-index: 99;
+    }
+    .sidebar-overlay.active {
+      display: block;
+    }
+    .main {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.3s;
+      background: var(--bg);
+      min-height: 100vh;
+    }
+    .topbar {
+      background: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar .mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 2rem;
+      color: var(--primary);
+      margin-right: 1rem;
+    }
+    .topbar .username {
+      font-weight: bold;
+      color: var(--primary);
+      letter-spacing: 1px;
+    }
+    .content {
+      flex: 1 1 0%;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 66px); /* 66px is approx topbar height */
+      min-height: 0;
+      background: var(--bg);
+    }
+    .users-section {
+      flex: 1 1 0%;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+      background: var(--card-bg);
+      border-radius: 0;
+      box-shadow: none;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow: hidden;
+    }
+    .users-header {
+      padding: 24px 24px 12px 24px;
+      background: var(--card-bg);
+      border-bottom: 1.5px solid #e8eaf0;
+    }
+    .users-title {
+      font-size: 1.19rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .users-desc {
+      color: #6b7280;
+      font-size: 1.01rem;
+      margin-bottom: 0;
+    }
+    .users-table-wrap {
+      flex: 1 1 0%;
+      width: 100%;
+      height: 100%;
+      overflow-x: auto;
+      background: var(--card-bg);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .users-table {
+      width: 100%;
+      min-width: 900px;
+      border-collapse: separate;
+      border-spacing: 0 0.6em;
+      background: #fff;
+      margin: 0;
+    }
+    .users-table th, .users-table td {
+      padding: 0.75em 1em;
+      text-align: left;
+      font-size: 1rem;
+      background: #f7f8fa;
+      border-bottom: 1px solid #e8eaf0;
+      word-break: break-word;
+      vertical-align: top;
+    }
+    .users-table th {
+      color: #606883;
+      font-weight: 600;
+      font-size: 1.05rem;
+      background: #f7f8fa;
+      border-bottom: 2px solid #e8eaf0;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .users-table tr:last-child td {
+      border-bottom: none;
+    }
+    .note-form {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7em;
+      margin-top: 3px;
+      flex-wrap: wrap;
+    }
+    .note-textarea {
+      min-width: 120px;
+      width: 100%;
+      max-width: 220px;
+      min-height: 28px;
+      font-size: 1em;
+      font-family: inherit;
+      border: 1.2px solid #d1d5db;
+      border-radius: 5px;
+      padding: 0.4em 0.6em;
+      resize: horizontal;
+      outline: none;
+      background: #f7f8fa;
+      transition: border 0.18s;
+    }
+    .note-textarea:focus { border-color: var(--primary);}
+    .save-note-btn {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 5px;
+      padding: 0.35em 1.1em;
+      cursor: pointer;
+      transition: background 0.14s;
+      font-size: 1em;
+      height: 34px;
+      margin-left: 6px;
+    }
+    .save-note-btn:active { background: #1e40af;}
+    .note-status {
+      font-size: 0.97em;
+      margin-left: 6px;
+      color: #22c55e;
+      font-weight: 500;
+      display: none;
+      align-self: center;
+    }
+    .note-status.visible { display: inline; }
+
+    @media (max-width: 900px) {
+      .main { margin-left: 0; }
+      .sidebar {
+        width: var(--sidebar-width);
+        transform: translateX(-100%);
+        position: fixed;
+        left: 0; top: 0; bottom: 0;
+        z-index: 100;
+        box-shadow: 2px 0 10px 0 rgba(44,62,80,0.08);
+        transition: transform 0.3s;
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .topbar .mobile-menu {
+        display: block !important;
+      }
+      .sidebar-overlay {
+        display: block;
+      }
+    }
+    @media (max-width: 700px) {
+      .users-table-wrap { padding: 0;}
+      .users-table { display: none; }
+      .user-cards-list {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        padding: 12px 4px 12px 4px;
+        width: 100%;
+      }
+      .user-card {
+        background: #f7f8fa;
+        border-radius: 10px;
+        padding: 14px 10px 12px 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        border: 1px solid #e0e0e0;
+        font-size: 0.98em;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .user-card-row { margin-bottom: 2px; }
+      .user-card-label {
+        font-weight: 500;
+        color: #2563eb;
+        min-width: 88px;
+        display: inline-block;
+      }
+      .user-card-note-row {
+        margin-top: 7px;
+      }
+      .note-textarea { min-width: 65px; max-width: 85vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="logo">AdminPanel</div>
+    <nav>
+      <a href="dashboard.html">
+        <svg width="20" height="20" fill="none"><rect x="2" y="2" width="7" height="7" rx="2" fill="#fff" /><rect x="11" y="2" width="7" height="7" rx="2" fill="#fff" fill-opacity="0.7"/><rect x="2" y="11" width="7" height="7" rx="2" fill="#fff" fill-opacity="0.7"/><rect x="11" y="11" width="7" height="7" rx="2" fill="#fff"/></svg>
+        Dashboard
+      </a>
+      <a href="users.html" class="active">
+        <svg width="20" height="20" fill="none"><circle cx="10" cy="7" r="4" fill="#fff"/><ellipse cx="10" cy="15.5" rx="7" ry="3.5" fill="#fff" fill-opacity="0.7"/></svg>
+        Users
+      </a>
+      <a href="#">
+        <svg width="20" height="20" fill="none"><path d="M4 16V8M10 16V4M16 16V12" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+        Analytics
+      </a>
+      <a href="#">
+        <svg width="20" height="20" fill="none"><circle cx="10" cy="10" r="3" fill="#fff"/><path d="M2 10a8 8 0 0116 0" stroke="#fff" stroke-width="2"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="logout" onclick="window.location.href='logout.php'">Log out</div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <button class="mobile-menu" id="menuBtn">&#9776;</button>
+      <div>All Users</div>
+      <div class="username">Admin</div>
+    </div>
+    <div class="content">
+      <div class="users-section">
+        <div class="users-header">
+          <div class="users-title">All Users</div>
+          <div class="users-desc">Below are all registered users and their information. You can add a private note for each user (only visible to you).</div>
+        </div>
+        <div class="users-table-wrap" style="flex:1;overflow:auto;">
+          <table class="users-table" id="users-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Country</th>
+                <th>Created At</th>
+                <th>Provider</th>
+                <th>Machine No.</th>
+                <th>Note (Private)</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="8" style="text-align:center;color:#9ca3af;">Loading...</td></tr>
+            </tbody>
+          </table>
+          <!-- Mobile cards container will be filled by JS -->
+          <div class="user-cards-list" id="user-cards-list" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAPbO30PsELuvnHepjAUwP21HbvQ4j3m4E",
+      authDomain: "pulsed-protoype.firebaseapp.com",
+      projectId: "pulsed-protoype",
+      storageBucket: "pulsed-protoype.firebasestorage.app",
+      messagingSenderId: "793278394093",
+      appId: "1:793278394093:web:3837b7410549753aff66e4",
+      measurementId: "G-ZXRW2TC82P"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function formatDate(iso) {
+      if (!iso) return "N/A";
+      const d = new Date(iso);
+      if (isNaN(d)) return iso;
+      return d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function createNoteForm(uid, idx, noteVal) {
+      return `
+        <form class="note-form" data-uid="${uid}" data-idx="${idx}">
+          <textarea class="note-textarea" rows="1" placeholder="Add note...">${noteVal ? noteVal : ""}</textarea>
+          <button type="submit" class="save-note-btn">Save</button>
+          <span class="note-status" id="note-status-${idx}">Saved!</span>
+        </form>
+      `;
+    }
+
+    async function loadUsersTable() {
+      const tbody = document.getElementById('users-tbody');
+      const cardsList = document.getElementById('user-cards-list');
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#9ca3af;">Loading...</td></tr>`;
+      cardsList.innerHTML = '';
+      try {
+        const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#9ca3af;">No users found.</td></tr>`;
+          cardsList.innerHTML = `<div style="text-align:center;color:#9ca3af;">No users found.</div>`;
+          return;
+        }
+        let html = "";
+        let cards = "";
+        let idx = 0;
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          html += `
+            <tr>
+              <td>${data.username ? data.username : "N/A"}</td>
+              <td>${data.email ? data.email : "N/A"}</td>
+              <td>${data.phone ? data.phone : "N/A"}</td>
+              <td>${data.country ? data.country : "N/A"}</td>
+              <td>${data.createdAt ? formatDate(data.createdAt) : "N/A"}</td>
+              <td>${data.provider ? data.provider : "N/A"}</td>
+              <td>${data.machineNumber ? data.machineNumber : "N/A"}</td>
+              <td>
+                ${createNoteForm(docSnap.id, idx, data.adminNote)}
+              </td>
+            </tr>
+          `;
+          cards += `
+            <div class="user-card">
+              <div class="user-card-row"><span class="user-card-label">Username: </span>${data.username ? data.username : "N/A"}</div>
+              <div class="user-card-row"><span class="user-card-label">Email: </span>${data.email ? data.email : "N/A"}</div>
+              <div class="user-card-row"><span class="user-card-label">Phone: </span>${data.phone ? data.phone : "N/A"}</div>
+              <div class="user-card-row"><span class="user-card-label">Country: </span>${data.country ? data.country : "N/A"}</div>
+              <div class="user-card-row"><span class="user-card-label">Created At: </span>${data.createdAt ? formatDate(data.createdAt) : "N/A"}</div>
+              <div class="user-card-row"><span class="user-card-label">Provider: </span>${data.provider ? data.provider : "N/A"}</div>
+              <div class="user-card-row"><span class="user-card-label">Machine No.: </span>${data.machineNumber ? data.machineNumber : "N/A"}</div>
+              <div class="user-card-row user-card-note-row">
+                ${createNoteForm(docSnap.id, `m${idx}`, data.adminNote)}
+              </div>
+            </div>
+          `;
+          idx++;
+        });
+        tbody.innerHTML = html;
+        cardsList.innerHTML = cards;
+
+        document.querySelectorAll('.note-form').forEach(form => {
+          const textarea = form.querySelector('.note-textarea');
+          const statusEl = form.querySelector('.note-status');
+          form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const uid = form.getAttribute('data-uid');
+            statusEl.textContent = "Saving...";
+            statusEl.classList.add("visible");
+            try {
+              await updateDoc(doc(db, "users", uid), { adminNote: textarea.value });
+              statusEl.textContent = "Saved!";
+              statusEl.style.color = "#22c55e";
+              setTimeout(() => statusEl.classList.remove("visible"), 1600);
+            } catch (err) {
+              statusEl.textContent = "Error!";
+              statusEl.style.color = "#dc2626";
+              setTimeout(() => statusEl.classList.remove("visible"), 2000);
+            }
+          });
+        });
+
+        function toggleUserView() {
+          if (window.innerWidth <= 700) {
+            document.getElementById('users-table').style.display = 'none';
+            cardsList.style.display = 'flex';
+          } else {
+            document.getElementById('users-table').style.display = '';
+            cardsList.style.display = 'none';
+          }
+        }
+        toggleUserView();
+        window.addEventListener('resize', toggleUserView);
+
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#ff3860;">Failed to load users: ${e.message}</td></tr>`;
+        cardsList.innerHTML = `<div style="text-align:center;color:#ff3860;">Failed to load users: ${e.message}</div>`;
+      }
+    }
+    loadUsersTable();
+  </script>
+  <script>
+    // Burger/Sidebar overlay fix for mobile
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    function openSidebar() {
+      sidebar.classList.add('open');
+      sidebarOverlay.classList.add('active');
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    }
+    if(menuBtn) menuBtn.addEventListener('click', openSidebar);
+    if(sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+    // Close sidebar on nav click (mobile)
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        if(window.innerWidth < 900) closeSidebar();
+      });
+    });
+    // Hide sidebar if window is resized to desktop
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 900) closeSidebar();
+    });
+  </script>
+</body>
+</html>

@@ -348,7 +348,7 @@
         <svg width="20" height="20" fill="none"><rect x="2" y="2" width="7" height="7" rx="2" fill="#fff" /><rect x="11" y="2" width="7" height="7" rx="2" fill="#fff" fill-opacity="0.7"/><rect x="2" y="11" width="7" height="7" rx="2" fill="#fff" fill-opacity="0.7"/><rect x="11" y="11" width="7" height="7" rx="2" fill="#fff"/></svg>
         Dashboard
       </a>
-      <a href="#">
+      <a href="users.html">
         <svg width="20" height="20" fill="none"><circle cx="10" cy="7" r="4" fill="#fff"/><ellipse cx="10" cy="15.5" rx="7" ry="3.5" fill="#fff" fill-opacity="0.7"/></svg>
         Users
       </a>
@@ -559,8 +559,8 @@
     // Priority: 1 = Normal (best), 5 = Error (worst)
     const statusArr = [
       {label: "Normal", cls: "status-online", timeline: 0.9, due: "Aug 12", dueCls:"due-normal", sensor: "Normal", sensorCls: "sensor-ok", timelineFg: "status-online", priority: 1},
-      {label: "Maintenance", cls: "status-maintenance", timeline: 0.3, due: "Aug 11", dueCls:"due-soon", sensor: "Filter Replace", sensorCls: "sensor-warning", timelineFg: "status-maintenance", priority: 2},
-      {label: "Due", cls: "status-due", timeline: 0.6, due: "Aug 15", dueCls:"due-soon", sensor: "Clean Sensor", sensorCls: "sensor-warning", timelineFg: "status-due", priority: 3},
+      {label: "Due", cls: "status-due", timeline: 0.6, due: "Aug 15", dueCls:"due-soon", sensor: "Clean Sensor", sensorCls: "sensor-warning", timelineFg: "status-due", priority: 2},
+      {label: "Maintenance", cls: "status-maintenance", timeline: 0.3, due: "Aug 11", dueCls:"due-soon", sensor: "Filter Replace", sensorCls: "sensor-warning", timelineFg: "status-maintenance", priority: 3},
       {label: "Offline", cls: "status-offline", timeline: 0, due: "Overdue", dueCls:"due-overdue", sensor: "No Data", sensorCls: "sensor-off", timelineFg: "status-offline", priority: 4},
       {label: "Error", cls: "status-error", timeline: 0.15, due: "Overdue", dueCls:"due-overdue", sensor: "Water Leak", sensorCls: "sensor-danger", timelineFg: "status-error", priority: 5}
     ];
