@@ -6,6 +6,7 @@
   <title>Register Account</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    /* --- All your original CSS unchanged --- */
     html, body {
       height: 100%;
       margin: 0;
@@ -338,7 +339,6 @@
         width: 1em;
       }
     }
-    /* Modal Styles */
     .modal-overlay {
       position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
       background: rgba(0,0,0,0.18); z-index: 1000;
@@ -389,6 +389,11 @@
     <div class="register-panel">
       <div class="register-title">Create Account</div>
       <form class="register-form" id="registerForm" autocomplete="off" novalidate>
+        <!-- ... All input groups unchanged ... -->
+        <!-- (Omitted for brevity, keep as in your post above) -->
+        <!-- ... -->
+        <!-- Username, Email, Phone, Password, Confirm Password -->
+        <!-- ... -->
         <div class="input-group" id="reg-username-group">
           <label for="reg-username">Username</label>
           <input id="reg-username" name="reg-username" type="text" required placeholder="Your username"/>
@@ -497,6 +502,16 @@
     </div>
   </div>
   <script>
+    // ... All your original JS unchanged ...
+    // (Omitted for brevity, keep as in your post above)
+    function showModal() {
+      document.getElementById("successModal").style.display = "flex";
+    }
+    function closeModal() {
+      document.getElementById("successModal").style.display = "none";
+      window.location.href = "login.html"; // <--- Redirect to login.html on success!
+    }
+    // ... Rest unchanged ...
     // Country phone validation data
     const countryPhoneData = {
       PH: { code: '+63', min: 10, max: 10, placeholder: '9123456789', desc: '10 digits (9xxxxxxxxx)' },
@@ -555,17 +570,6 @@
         eyeClosed.style.display = "none";
       }
     }
-
-    // Modal handlers
-    function showModal() {
-      document.getElementById("successModal").style.display = "flex";
-    }
-    function closeModal() {
-      document.getElementById("successModal").style.display = "none";
-      // Optionally redirect or reset page here
-      // window.location.href = "/my-account.html";
-    }
-
     // Machine number generator
     function generateMachineNumber() {
       return Math.floor(10000000 + Math.random() * 90000000).toString();
