@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Machine Dashboard</title>
+  <style>
+    :root {
+      --sidebar-width: 220px;
+      --primary: #2563eb;
+      --bg: #f4f6fa;
+      --card-bg: #fff;
+      --text: #222;
+      --text-light: #666;
+      --border: #e0e0e0;
+      --success: #22c55e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--primary);
+      color: #fff;
+      padding: 2rem 1rem 1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      z-index: 200;
+      transition: transform 0.3s;
+    }
+    .sidebar .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+      letter-spacing: 1px;
+      text-align: center;
+      display: block;
+    }
+    .sidebar nav {
+      flex: 1;
+    }
+    .sidebar nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #fff;
+      padding: 0.7rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+      font-size: 1.04rem;
+      transition: background 0.2s;
+    }
+    .sidebar nav a.active, .sidebar nav a:hover {
+      background: rgba(255,255,255,0.12);
+      font-weight: bold;
+    }
+    .sidebar .logout {
+      margin-top: 2rem;
+      color: #fff;
+      text-align: center;
+      cursor: pointer;
+      font-size: 1rem;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+      display: block;
+    }
+    .sidebar .logout:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .main {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.3s;
+    }
+    .topbar {
+      background: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      min-height: 80px;
+    }
+    .topbar .mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 2rem;
+      color: var(--primary);
+      margin-right: 1rem;
+    }
+    .topbar .username {
+      font-weight: bold;
+      color: var(--primary);
+      letter-spacing: 1px;
+      margin-left: 1.5rem;
+    }
+    /* User info in navbar */
+    .user-info-navbar {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      min-width: 0;
+    }
+    .user-info-navbar .profile-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg,#e3f7e8 40%,#d9ebff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3em;
+      color: #2a6dfc;
+      font-weight: 700;
+      box-shadow: 0 2px 10px 0 rgba(44,62,80,0.07);
+      flex-shrink: 0;
+    }
+    .user-info-navbar .profile-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.05em;
+      min-width: 0;
+      justify-content: center;
+    }
+    .user-info-navbar .profile-name {
+      font-size: 1.01em;
+      font-weight: 700;
+      color: #232c38;
+      margin: 0 0 0.03em 0;
+      word-break: break-all;
+    }
+    .user-info-navbar .profile-email {
+      color: #616e7c;
+      font-size: 0.98em;
+      font-weight: 500;
+      word-break: break-all;
+    }
+    .user-info-navbar .machine-number {
+      font-size: 1em;
+      font-weight: bold;
+      letter-spacing: 0.03em;
+      color: #22b573;
+      background: #eafaf2;
+      padding: 0.1em 0.7em;
+      border-radius: 6px;
+      margin-top: 0.13em;
+      display: inline-block;
+    }
+
+    .content {
+      flex: 1;
+      padding: 2rem;
+      background: #f4f6fa;
+      width: 100%;
+    }
+
+    /* Make analytics/status panel full width below navbar, no whitespace on sides */
+    .status-analytics-row {
+      display: flex;
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+      align-items: stretch;
+      flex-wrap: wrap;
+      padding: 0;
+    }
+    .machine-panel {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px 0 rgba(44,62,80,0.06);
+      padding: 2rem 2.5rem;
+      min-width: 320px;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: 240px;
+      justify-content: flex-start;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Remove profile card from desktop */
+    .profile-card { display: none !important; }
+
+    /* Table styles */
+    .machine-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 0.6em;
+      min-width: 320px;
+      background: #fff;
+    }
+    .machine-table th, .machine-table td {
+      padding: 0.8em 1em;
+      text-align: left;
+      font-size: 1rem;
+      background: #f7f8fa;
+    }
+    .machine-table th {
+      color: #606883;
+      font-weight: 600;
+      font-size: 1.06rem;
+      background: transparent;
+      border-bottom: 2px solid #e8eaf0;
+    }
+    .machine-table tbody tr {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 6px 0 rgba(44,62,80,0.07);
+    }
+    .machine-table tr td {
+      border-bottom: 1px solid #e8eaf0;
+      vertical-align: middle;
+      background: #fff;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 0.37em 1.2em;
+      border-radius: 24px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1em;
+      letter-spacing: 0.01em;
+      box-shadow: 0 2px 6px rgba(44,62,80,0.05);
+      background: var(--success);
+    }
+    .status-online { background: #22c55e; }
+    .status-offline { background: #dc2626; }
+    .status-maintenance { background: #fb923c; }
+    .status-due { background: #2563eb; }
+    .status-error { background: #b91c1c; }
+    .status-inactive { background: #9ca3af; }
+    .sensor-indicator {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+      box-shadow: 0 1px 3px rgba(44,62,80,0.10);
+      background: #22c55e;
+    }
+    .sensor-ok { background: #22c55e; }
+    .sensor-warning { background: #fbbf24; }
+    .sensor-danger { background: #dc2626; }
+    .sensor-off { background: #9ca3af; }
+    .priority-stars {
+      display: flex;
+      gap: 2px;
+    }
+    .priority-stars span {
+      font-size: 1.05em;
+      color: #fbbf24;
+    }
+    .priority-stars .star-empty { color: #e5e7eb; }
+
+    .loader {
+      margin: 2em auto;
+      border: 4px solid #e0e0e0;
+      border-top: 4px solid #2196f3;
+      border-radius: 50%;
+      width: 40px; height: 40px;
+      animation: spin 1s linear infinite;
+      display: block;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .error-message {
+      color: #ff3860;
+      font-size: 1.13em;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 2em;
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 1150px) {
+      .status-analytics-row { flex-direction: column; }
+      .machine-panel { max-width: 100%; }
+    }
+    @media (max-width: 900px) {
+      .main { margin-left: 0; }
+      .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        left: 0; top: 0; bottom: 0;
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .topbar .mobile-menu { display: inline-block; }
+      /* Show profile card in mobile, hide user-info-navbar in navbar */
+      .profile-card {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.1rem;
+        min-width: 0;
+        width: 100%;
+        min-height: 110px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px 0 rgba(44,62,80,0.08);
+        padding: 1.2rem 1rem;
+        margin: 1.2rem auto 1rem auto;
+        max-width: 95%;
+      }
+      .profile-card .profile-avatar {
+        width: 50px;
+        height: 50px;
+        font-size: 1.4em;
+        margin-bottom: 0.2em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg,#e3f7e8 40%,#d9ebff 100%);
+        color: #2a6dfc;
+        font-weight: 700;
+        box-shadow: 0 2px 10px 0 rgba(44,62,80,0.07);
+      }
+      .profile-card .profile-details {
+        align-items: center;
+        text-align: center;
+        gap: 0.15em;
+      }
+      .profile-card .profile-name {
+        font-size: 1.1em;
+        font-weight: 700;
+      }
+      .profile-card .profile-email {
+        font-size: 1.04em;
+        color: #616e7c;
+        font-weight: 500;
+        margin-bottom: 0.2em;
+      }
+      .profile-card .machine-number-label {
+        color: #22b573;
+        font-weight: 600;
+        font-size: 1em;
+        margin-top: 0.1em;
+      }
+      .profile-card .machine-number {
+        font-size: 1em;
+        font-weight: bold;
+        letter-spacing: 0.03em;
+        color: #22b573;
+        background: #eafaf2;
+        padding: 0.1em 0.7em;
+        border-radius: 6px;
+        margin-top: 0.13em;
+        display: inline-block;
+      }
+      .status-analytics-row {
+        margin-top: 0.6rem;
+      }
+      .machine-panel {
+        padding: 1rem 0.5rem;
+        border-radius: 16px;
+        margin: 0 auto 1.3rem auto;
+        max-width: 97%;
+        min-width: 0;
+      }
+      .user-info-navbar { display: none !important; }
+      .sidebar .logout { display: block; }
+      /* Hide any mobile logo card */
+      .mobile-logo-card { display: none !important; }
+    }
+    @media (max-width: 600px) {
+      .content { padding: 1rem 0.3rem; }
+      .profile-card, .machine-panel { padding: 1.1rem 0.5rem; }
+      .machine-table th, .machine-table td { font-size: 0.89rem; padding: 0.4em 0.5em;}
+      .topbar { padding: 0.8rem 0.5rem; min-height: 62px; }
+      .profile-card { min-height: 110px; }
+    }
+    /* hamburger overlay for sidebar */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      z-index: 199;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.12);
+      transition: opacity 0.3s;
+    }
+    .sidebar.open ~ .sidebar-overlay {
+      display: block;
+    }
+    /* Hide mobile logo at desktop width */
+    .mobile-logo-card { display: none; }
+  </style>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <div class="logo">UserPanel</div>
+    <nav>
+      <a href="#" class="active">
+        <svg width="20" height="20" fill="none"><rect x="2" y="2" width="7" height="7" rx="2" fill="#fff" /><rect x="11" y="2" width="7" height="7" rx="2" fill="#fff" fill-opacity="0.7"/><rect x="2" y="11" width="7" height="7" rx="2" fill="#fff" fill-opacity="0.7"/><rect x="11" y="11" width="7" height="7" rx="2" fill="#fff"/></svg>
+        Dashboard
+      </a>
+      <a href="#">
+        <svg width="20" height="20" fill="none"><circle cx="10" cy="7" r="4" fill="#fff"/><ellipse cx="10" cy="15.5" rx="7" ry="3.5" fill="#fff" fill-opacity="0.7"/></svg>
+        Analytics
+      </a>
+      <a href="#">
+        <svg width="20" height="20" fill="none"><path d="M4 19V7m5 12V3m5 16v-8m5 8v-5" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="logout" onclick="logout()">Log out</div>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="main">
+    <div class="topbar">
+      <button class="mobile-menu" id="menuBtn">&#9776;</button>
+      <div>My Machine Dashboard</div>
+      <!-- User info in topbar (desktop only) -->
+      <div class="user-info-navbar" id="userInfoNavbar" style="display: flex;">
+        <div class="profile-avatar" id="profileAvatarNavbar"></div>
+        <div class="profile-details">
+          <div class="profile-name" id="userNameNavbar"></div>
+          <div class="profile-email" id="userEmailNavbar"></div>
+          <div class="machine-number" id="machineNumberNavbar"></div>
+        </div>
+      </div>
+      <div class="username" id="headerUserName" style="display:none;"></div>
+    </div>
+    <div class="content">
+      <!-- Profile card visible only on mobile -->
+      <div class="profile-card" id="profileCard">
+        <div class="profile-top">
+          <div class="profile-avatar" id="profileAvatar"></div>
+          <div class="profile-details">
+            <div class="profile-name" id="userName"></div>
+            <div class="profile-email" id="userEmail"></div>
+            <div class="machine-number-label">Machine Number</div>
+            <div class="machine-number" id="machineNumber"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Analytics/status panel, always full width -->
+      <div class="status-analytics-row">
+        <div class="machine-panel" id="mainContent" style="display:none;">
+          <table class="machine-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Last Runtime</th>
+                <th>Sensor</th>
+                <th>Priority</th>
+                <th>Due</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td id="statusTd">
+                  <span class="status-badge status-online" id="statusBadge">Online</span>
+                </td>
+                <td id="runtimeTd">-- hours</td>
+                <td id="sensorTd">
+                  <span class="sensor-indicator sensor-ok"></span>
+                  <span id="sensorStatus">Normal</span>
+                </td>
+                <td id="priorityTd">
+                  <span class="priority-stars">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span class="star-empty">★</span>
+                  </span>
+                </td>
+                <td id="dueTd"><span id="dueDate">Aug 12</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="font-size:0.98em;color:#8c8c8c;margin-top:1.4em;">
+            * Status and analytics update in real time with your IoT device.
+          </div>
+        </div>
+      </div>
+      <div id="loader" class="loader"></div>
+      <div id="errorMsg" class="error-message" style="display:none;"></div>
+    </div>
+  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAPbO30PsELuvnHepjAUwP21HbvQ4j3m4E",
+      authDomain: "pulsed-protoype.firebaseapp.com",
+      projectId: "pulsed-protoype",
+      storageBucket: "pulsed-protoype.firebasestorage.app",
+      messagingSenderId: "793278394093",
+      appId: "1:793278394093:web:3837b7410549753aff66e4",
+      measurementId: "G-ZXRW2TC82P"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    function showLoader(show=true) {
+      document.getElementById('loader').style.display = show ? 'block' : 'none';
+    }
+    function showError(msg) {
+      document.getElementById('errorMsg').textContent = msg;
+      document.getElementById('errorMsg').style.display = "block";
+      document.getElementById('mainContent').style.display = "none";
+      document.getElementById('profileCard').style.display = "none";
+      showLoader(false);
+    }
+    function showDashboard() {
+      document.getElementById('mainContent').style.display = "flex";
+      // Profile card only visible on mobile; handled by CSS
+      document.getElementById('profileCard').style.display = "";
+      document.getElementById('errorMsg').style.display = "none";
+      showLoader(false);
+    }
+    window.logout = function() {
+      signOut(auth).then(() => {
+        window.location.reload();
+      });
+    };
+
+    // Helper for avatar initials
+    function getInitials(name, email) {
+      if (!name && email) return email[0].toUpperCase();
+      if (!name) return "👤";
+      const parts = name.trim().split(' ');
+      if (parts.length === 1) return parts[0][0].toUpperCase();
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+
+    // Status, sensor, priority mapping
+    function renderStatus(status) {
+      switch(status) {
+        case "online":    return { label:"Online", cls:"status-online" };
+        case "maintenance": return { label:"Maintenance", cls:"status-maintenance" };
+        case "error":     return { label:"Error", cls:"status-error" };
+        case "offline":   return { label:"Offline", cls:"status-offline" };
+        case "due":       return { label:"Due", cls:"status-due" };
+        default:          return { label:status||"Unknown", cls:"status-inactive" };
+      }
+    }
+    function renderSensor(sensor) {
+      switch(sensor) {
+        case "normal":      return { dot:"sensor-ok", label:"Normal" };
+        case "filter":      return { dot:"sensor-warning", label:"Filter Replace" };
+        case "leak":        return { dot:"sensor-danger", label:"Water Leak" };
+        case "clean":       return { dot:"sensor-warning", label:"Clean Sensor" };
+        case "nodata":      return { dot:"sensor-off", label:"No Data" };
+        default:            return { dot:"sensor-off", label: sensor || "Unknown" };
+      }
+    }
+    function renderStars(priority) {
+      let html = '<span class="priority-stars">';
+      for(let i=1;i<=5;i++) html += `<span${i<=priority?'':' class="star-empty"'}>★</span>`;
+      html += '</span>';
+      return html;
+    }
+
+    // Responsive sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+    });
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.style.display = 'none';
+    });
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        if(window.innerWidth < 900) {
+          sidebar.classList.remove('open');
+          sidebarOverlay.style.display = 'none';
+        }
+      });
+    });
+
+    // Main logic
+    showLoader(true);
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        showError("Please log in to view your account.");
+        return;
+      }
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists()) {
+          showError("User data not found.");
+          return;
+        }
+        const data = userDoc.data();
+
+        // Navbar user info (desktop)
+        document.getElementById('userNameNavbar').textContent = data.username || user.displayName || "";
+        document.getElementById('profileAvatarNavbar').textContent = getInitials(data.username || user.displayName, user.email);
+        document.getElementById('userEmailNavbar').textContent = data.email || user.email || "";
+        document.getElementById('machineNumberNavbar').textContent = data.machineNumber || "Not set";
+
+        // Profile card (mobile)
+        document.getElementById('userName').textContent = data.username || user.displayName || "";
+        document.getElementById('profileAvatar').textContent = getInitials(data.username || user.displayName, user.email);
+        document.getElementById('userEmail').textContent = data.email || user.email || "";
+        document.getElementById('machineNumber').textContent = data.machineNumber || "Not set";
+
+        // Only show user's own machine
+        const statusVal = (data.machineStatus || "online").toLowerCase();
+        const statusObj = renderStatus(statusVal);
+        document.getElementById('statusBadge').textContent = statusObj.label;
+        document.getElementById('statusBadge').className = "status-badge " + statusObj.cls;
+        document.getElementById('runtimeTd').textContent =
+          (data.lastRuntime !== undefined ? data.lastRuntime : Math.floor(Math.random()*24)) + " hours";
+        const sensorVal = (data.sensorStatus || "normal").toLowerCase();
+        const sensorObj = renderSensor(sensorVal);
+        document.getElementById('sensorTd').innerHTML =
+          `<span class="sensor-indicator ${sensorObj.dot}"></span><span id="sensorStatus">${sensorObj.label}</span>`;
+        document.getElementById('priorityTd').innerHTML =
+          renderStars(data.priority !== undefined ? data.priority : 4);
+        document.getElementById('dueDate').textContent =
+          data.dueDate || "Aug 12";
+
+        showDashboard();
+      } catch (e) {
+        showError("Failed to load account info.");
+      }
+    });
+  </script>
+</body>
+</html>

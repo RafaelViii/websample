@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard with Graphs</title>
+  <style>
+    :root {
+      --sidebar-width: 220px;
+      --primary: #2563eb;
+      --bg: #f4f6fa;
+      --card-bg: #fff;
+      --text: #222;
+      --text-light: #666;
+      --border: #e0e0e0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--primary);
+      color: #fff;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform 0.3s;
+    }
+    .sidebar .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+    .sidebar nav {
+      flex: 1;
+    }
+    .sidebar nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #fff;
+      padding: 0.7rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-bottom: 0.3rem;
+      font-size: 1.04rem;
+      transition: background 0.2s;
+    }
+    .sidebar nav a.active, .sidebar nav a:hover {
+      background: rgba(255,255,255,0.12);
+      font-weight: bold;
+    }
+    .sidebar .logout {
+      margin-top: 2rem;
+      color: #fff;
+      text-align: center;
+      cursor: pointer;
+      font-size: 1rem;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .sidebar .logout:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .main {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.3s;
+    }
+    .topbar {
+      background: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar .mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 2rem;
+      color: var(--primary);
+      margin-right: 1rem;
+    }
+    .topbar .username {
+      font-weight: bold;
+      color: var(--primary);
+      letter-spacing: 1px;
+    }
+    .content {
+      flex: 1;
+      padding: 2rem;
+      background: #f4f6fa;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .card .card-title {
+      font-size: 1rem;
+      color: var(--text-light);
+      margin-bottom: 0.6rem;
+    }
+    .card .card-value {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.2rem;
+      color: var(--primary);
+    }
+    .card .view-graph-btn {
+      margin-top: 1rem;
+      padding: 0.45rem 1rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.98rem;
+      transition: background 0.15s;
+    }
+    .card .view-graph-btn:hover {
+      background: #1e40af;
+    }
+    /* Modal styles */
+    .modal-bg {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.33);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-bg.active {
+      display: flex;
+    }
+    .modal {
+      background: #fff;
+      padding: 2rem 1.5rem 1.4rem 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.12);
+      max-width: 90vw;
+      width: 420px;
+      position: relative;
+    }
+    .modal .close-btn {
+      position: absolute;
+      right: 1rem; top: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--primary);
+    }
+    .modal h3 {
+      margin: 0 0 1rem 0;
+      font-size: 1.15rem;
+      text-align: center;
+      color: var(--primary);
+    }
+    /* Responsive styles */
+    @media (max-width: 900px) {
+      .main { margin-left: 0; }
+      .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .topbar .mobile-menu { display: inline-block; }
+    }
+    @media (max-width: 600px) {
+      .content { padding: 1rem; }
+      .cards { gap: 1rem; }
+      .card { padding: 1rem; }
+      .modal { width: 95vw; padding: 1.2rem 0.5rem 1.2rem 0.5rem; }
+    }
+
+    /* --- Machine Monitoring Table Styles --- */
+    .machine-monitor-section {
+      margin-top: 32px;
+      background: #fff;
+      padding: 32px 24px 26px 24px;
+      border-radius: 15px;
+      box-shadow: 0 2px 16px 0 rgba(44,62,80,0.06);
+    }
+    .machine-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 0.6em;
+      min-width: 900px;
+    }
+    .machine-table th, .machine-table td {
+      padding: 0.8em 1em;
+      text-align: left;
+      font-size: 1rem;
+      background: #f7f8fa;
+    }
+    .machine-table th {
+      color: #606883;
+      font-weight: 600;
+      font-size: 1.06rem;
+      background: transparent;
+      border-bottom: 2px solid #e8eaf0;
+    }
+    .machine-table tbody tr {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 6px 0 rgba(44,62,80,0.07);
+    }
+    .machine-table tr td {
+      border-bottom: 1px solid #e8eaf0;
+      vertical-align: middle;
+      background: #fff;
+    }
+    .owner-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+    }
+    .owner-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #e8eaf0;
+    }
+    .owner-initials {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.02rem;
+      border: 2px solid #e8eaf0;
+    }
+    /* Status badge styles */
+    .status-badge {
+      display: inline-block;
+      padding: 0.37em 1.2em;
+      border-radius: 24px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1em;
+      letter-spacing: 0.01em;
+      box-shadow: 0 2px 6px rgba(44,62,80,0.05);
+    }
+    .status-online { background: #22c55e; }
+    .status-offline { background: #dc2626; }
+    .status-maintenance { background: #fb923c; }
+    .status-due { background: #2563eb; }
+    .status-error { background: #b91c1c; }
+    .status-inactive { background: #9ca3af; }
+    /* Timeline bar */
+    .timeline-bar-bg {
+      background: #e5e7ef;
+      border-radius: 6px;
+      overflow: hidden;
+      height: 12px;
+      width: 120px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .timeline-bar-fg {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.4s;
+    }
+    /* Due */
+    .due-soon { color: #fb923c; font-weight: 600; }
+    .due-overdue { color: #dc2626; font-weight: 600; }
+    .due-normal { color: #2563eb; }
+    /* Priority stars */
+    .priority-stars {
+      display: flex;
+      gap: 2px;
+    }
+    .priority-stars span {
+      font-size: 1.05em;
+      color: #fbbf24;
+    }
+    .priority-stars .star-empty { color: #e5e7eb; }
+    /* Sensor status circle */
+    .sensor-indicator {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+      box-shadow: 0 1px 3px rgba(44,62,80,0.10);
+    }
+    .sensor-ok { background: #22c55e; }
+    .sensor-warning { background: #fbbf24; }
+    .sensor-danger { background: #dc2626; }
+    .sensor-off { background: #9ca3af; }
+    @media (max-width: 1200px) {
+      .machine-table { min-width: 600px; }
+      .machine-monitor-section { padding: 20px 4px 16px 4px; }
+    }
+    @media (max-width: 850px) {
+      .machine-table th, .machine-table td {
+        font-size: 0.95rem;
+        padding: 0.5em 0.5em;
+      }
+      .timeline-bar-bg { width: 70px; }
+    }
+    @media (max-width: 600px) {
+      .machine-table th, .machine-table td { font-size: 0.89rem; }
+      .timeline-bar-bg { width: 40px; }
+      .machine-monitor-section { padding: 8px 0 6px 0; }
+    }
+  </style>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <div class="logo">AdminPanel</div>
+    <nav>
+      <a href="#" class="active">
+        <!-- dashboard icon -->
+        <svg width="20" height="20" fill="none"><rect x="2" y="2" width="7" height="7" rx="2" fill="#fff" /><rect x="11" y="2" width="7" height="7" rx="2" fill="#fff" fill-opacity="0.7"/><rect x="2" y="11" width="7" height="7" rx="2" fill="#fff" fill-opacity="0.7"/><rect x="11" y="11" width="7" height="7" rx="2" fill="#fff"/></svg>
+        Dashboard
+      </a>
+      <a href="#">
+        <!-- users icon -->
+        <svg width="20" height="20" fill="none"><circle cx="10" cy="7" r="4" fill="#fff"/><ellipse cx="10" cy="15.5" rx="7" ry="3.5" fill="#fff" fill-opacity="0.7"/></svg>
+        Users
+      </a>
+      <a href="#">
+        <!-- analytics icon -->
+        <svg width="20" height="20" fill="none"><path d="M4 16V8M10 16V4M16 16V12" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+        Analytics
+      </a>
+      <a href="#">
+        <!-- settings icon -->
+        <svg width="20" height="20" fill="none"><circle cx="10" cy="10" r="3" fill="#fff"/><path d="M2 10a8 8 0 0116 0" stroke="#fff" stroke-width="2"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="logout" onclick="window.location.href='logout.php'">Log out</div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <button class="mobile-menu" id="menuBtn">&#9776;</button>
+      <div>Admin Dashboard</div>
+      <div class="username">Admin</div>
+    </div>
+    <div class="content">
+      <div class="cards">
+        <div class="card">
+          <div class="card-title">Total Users</div>
+          <div class="card-value">1,204</div>
+          <div style="font-size:0.9rem; color:var(--text-light);">+32 this week</div>
+          <button class="view-graph-btn" data-graph="users">View Graph</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Active Sessions</div>
+          <div class="card-value">478</div>
+          <div style="font-size:0.9rem; color:var(--text-light);">+5.7%</div>
+          <button class="view-graph-btn" data-graph="sessions">View Graph</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Revenue</div>
+          <div class="card-value">$9,340</div>
+          <div style="font-size:0.9rem; color:var(--text-light);">+12% MoM</div>
+          <button class="view-graph-btn" data-graph="revenue">View Graph</button>
+        </div>
+        <div class="card">
+          <div class="card-title">New Signups</div>
+          <div class="card-value">71</div>
+          <div style="font-size:0.9rem; color:var(--text-light);">Last 24h</div>
+          <button class="view-graph-btn" data-graph="signups">View Graph</button>
+        </div>
+      </div>
+      <!-- Machine Monitoring Table Section STARTS HERE -->
+      <div class="machine-monitor-section">
+        <div style="font-size: 1.17rem; font-weight: 600; margin-bottom: 5px;">Live Machine Monitoring</div>
+        <div style="color: #6b7280; font-size: 1.01rem; margin-bottom: 18px;">
+          Nationwide IoT machine status overview.
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="machine-table">
+            <thead>
+              <tr>
+                <th>Machine</th>
+                <th>Owner</th>
+                <th>Status</th>
+                <th>Timeline</th>
+                <th>Due</th>
+                <th>Sensor</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Vendo PH-001</td>
+                <td>
+                  <div class="owner-cell">
+                    <img class="owner-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Owner Photo" />
+                    <span>Juan Ramos</span>
+                  </div>
+                </td>
+                <td><span class="status-badge status-online">Online</span></td>
+                <td>
+                  <div class="timeline-bar-bg">
+                    <div class="timeline-bar-fg" style="width: 90%; background:#22c55e"></div>
+                  </div>
+                </td>
+                <td class="due-normal">Aug 12</td>
+                <td>
+                  <span class="sensor-indicator sensor-ok"></span>
+                  Normal
+                </td>
+                <td>
+                  <span class="priority-stars">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span class="star-empty">★</span>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td>IceMaker Davao-02</td>
+                <td>
+                  <div class="owner-cell">
+                    <div class="owner-initials">MH</div>
+                    <span>Maria Hizon</span>
+                  </div>
+                </td>
+                <td><span class="status-badge status-maintenance">Maintenance</span></td>
+                <td>
+                  <div class="timeline-bar-bg">
+                    <div class="timeline-bar-fg" style="width: 30%; background:#fb923c"></div>
+                  </div>
+                </td>
+                <td class="due-soon">Aug 11</td>
+                <td>
+                  <span class="sensor-indicator sensor-warning"></span>
+                  Filter Replace
+                </td>
+                <td>
+                  <span class="priority-stars">
+                    <span>★</span><span>★</span><span>★</span><span class="star-empty">★</span><span class="star-empty">★</span>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td>CoffeeBot Cebu-7</td>
+                <td>
+                  <div class="owner-cell">
+                    <img class="owner-avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Owner Photo" />
+                    <span>Leah Santos</span>
+                  </div>
+                </td>
+                <td><span class="status-badge status-error">Error</span></td>
+                <td>
+                  <div class="timeline-bar-bg">
+                    <div class="timeline-bar-fg" style="width: 15%; background:#b91c1c"></div>
+                  </div>
+                </td>
+                <td class="due-overdue">Overdue</td>
+                <td>
+                  <span class="sensor-indicator sensor-danger"></span>
+                  Water Leak
+                </td>
+                <td>
+                  <span class="priority-stars">
+                    <span>★</span><span>★</span><span class="star-empty">★</span><span class="star-empty">★</span><span class="star-empty">★</span>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td>MiniVendo Manila-5</td>
+                <td>
+                  <div class="owner-cell">
+                    <div class="owner-initials">RC</div>
+                    <span>Rico Cruz</span>
+                  </div>
+                </td>
+                <td><span class="status-badge status-offline">Offline</span></td>
+                <td>
+                  <div class="timeline-bar-bg">
+                    <div class="timeline-bar-fg" style="width: 0%; background:#9ca3af"></div>
+                  </div>
+                </td>
+                <td class="due-overdue">Overdue</td>
+                <td>
+                  <span class="sensor-indicator sensor-off"></span>
+                  No Data
+                </td>
+                <td>
+                  <span class="priority-stars">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td>WaterBot Baguio-3</td>
+                <td>
+                  <div class="owner-cell">
+                    <img class="owner-avatar" src="https://randomuser.me/api/portraits/men/54.jpg" alt="Owner Photo" />
+                    <span>Ernie Lopez</span>
+                  </div>
+                </td>
+                <td><span class="status-badge status-due">Due</span></td>
+                <td>
+                  <div class="timeline-bar-bg">
+                    <div class="timeline-bar-fg" style="width: 60%; background:#2563eb"></div>
+                  </div>
+                </td>
+                <td class="due-soon">Aug 15</td>
+                <td>
+                  <span class="sensor-indicator sensor-warning"></span>
+                  Clean Sensor
+                </td>
+                <td>
+                  <span class="priority-stars">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span class="star-empty">★</span>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:0.98em;color:#8c8c8c;margin-top:1.4em;">
+          * Table updates in real time with your IoT data.
+        </div>
+      </div>
+      <!-- Machine Monitoring Table Section ENDS HERE -->
+      <div class="chart" style="margin-top: 40px;">
+        <!-- You can keep this for analytics or remove if not needed -->
+      </div>
+    </div>
+  </div>
+  <!-- Modal for Graph -->
+  <div class="modal-bg" id="modalBg">
+    <div class="modal">
+      <button class="close-btn" id="closeModal">&times;</button>
+      <h3 id="modalTitle">Graph</h3>
+      <canvas id="modalChart" width="370" height="230"></canvas>
+    </div>
+  </div>
+  <script>
+    // Responsive sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menuBtn');
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        if(window.innerWidth < 900) sidebar.classList.remove('open');
+      });
+    });
+
+    // Modal + Chart.js logic
+    const modalBg = document.getElementById('modalBg');
+    const closeModal = document.getElementById('closeModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalChart = document.getElementById('modalChart');
+    let chartInstance = null;
+
+    // Sample data for each graph
+    const graphData = {
+      users: {
+        title: 'Total Users (Last 6 Months)',
+        labels: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+        data: [850, 930, 1040, 1130, 1190, 1204],
+        color: 'rgba(37,99,235,0.8)'
+      },
+      sessions: {
+        title: 'Active Sessions (Last 7 Days)',
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        data: [410, 415, 420, 430, 445, 465, 478],
+        color: 'rgba(99,102,241,0.8)'
+      },
+      revenue: {
+        title: 'Revenue ($, Last 6 Months)',
+        labels: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+        data: [5200, 6000, 7500, 8000, 8900, 9340],
+        color: 'rgba(34,197,94,0.8)'
+      },
+      signups: {
+        title: 'New Signups (Last 7 Days)',
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        data: [10, 15, 8, 13, 12, 6, 7],
+        color: 'rgba(251,191,36,0.8)'
+      }
+    };
+
+    document.querySelectorAll('.view-graph-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const graphKey = btn.getAttribute('data-graph');
+        const { title, labels, data, color } = graphData[graphKey];
+        modalTitle.textContent = title;
+
+        // Destroy previous chart if any
+        if(chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(modalChart, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: title,
+              data,
+              fill: false,
+              borderColor: color,
+              backgroundColor: color,
+              tension: 0.3,
+              pointRadius: 4,
+            }]
+          },
+          options: {
+            responsive: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: false, ticks: { color: '#333', font: { size: 13 } } },
+              x: { ticks: { color: '#333', font: { size: 13 } } }
+            }
+          }
+        });
+
+        modalBg.classList.add('active');
+      });
+    });
+
+    closeModal.addEventListener('click', () => {
+      modalBg.classList.remove('active');
+      if(chartInstance) chartInstance.destroy();
+    });
+
+    // Close modal when clicking outside modal
+    modalBg.addEventListener('click', (e) => {
+      if(e.target === modalBg) {
+        modalBg.classList.remove('active');
+        if(chartInstance) chartInstance.destroy();
+      }
+    });
+  </script>
+</body>
+</html>
