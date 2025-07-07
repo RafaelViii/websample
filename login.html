@@ -6,7 +6,6 @@
   <title>Admin Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* ===== GENERAL RESET & BASE ===== */
     html, body {
       height: 100%;
       margin: 0;
@@ -14,8 +13,6 @@
       font-family: 'Inter', Arial, sans-serif;
       background: #f7f8fa;
     }
-
-    /* ===== LAYOUT CONTAINERS ===== */
     .login-container {
       min-height: 100vh;
       display: flex;
@@ -23,7 +20,6 @@
       justify-content: center;
       width: 100vw;
     }
-
     .login-panel {
       background: #fff;
       border-radius: 12px;
@@ -33,11 +29,9 @@
       max-width: 370px;
       display: flex;
       flex-direction: column;
-      gap: 28px;
+      gap: 18px;
       transition: box-shadow 0.18s, transform 0.18s;
     }
-
-    /* ===== TITLE ===== */
     .login-title {
       font-size: 2rem;
       font-weight: 600;
@@ -46,16 +40,12 @@
       letter-spacing: 0.01em;
       margin-bottom: 10px;
     }
-
-    /* ===== FORM STYLES ===== */
     .login-form {
       display: flex;
       flex-direction: column;
       gap: 22px;
       width: 100%;
     }
-
-    /* ===== INPUT GROUPS ===== */
     .input-group {
       display: flex;
       flex-direction: column;
@@ -63,7 +53,6 @@
       margin-bottom: 10px;
       position: relative;
     }
-
     .input-group label {
       font-size: 1rem;
       color: #616e7c;
@@ -71,7 +60,6 @@
       font-weight: 500;
       letter-spacing: 0.01em;
     }
-
     .input-group input {
       width: 90%;
       padding: 14px 16px;
@@ -85,24 +73,19 @@
       transition: border 0.18s, box-shadow 0.18s;
       box-shadow: 0 2px 8px 0 rgba(125, 140, 255, 0.06);
     }
-
     .input-group input:focus {
       border-color: #7d8cff;
       background: #fff;
       box-shadow: 0 0 8px 0 #7d8cff44;
     }
-
     .input-group input:invalid:focus {
       border-color: #ff3860;
       box-shadow: 0 0 0 2px #ff386033, 0 2px 8px 0 rgba(255,56,96,0.09);
     }
-
     .input-group.invalid input {
       border-color: #ff3860;
       box-shadow: 0 0 0 2px #ff386033, 0 2px 8px 0 rgba(255,56,96,0.09);
     }
-
-    /* ===== ERROR MESSAGE ===== */
     .error-message {
       color: #ff3860;
       font-size: 0.94rem;
@@ -117,13 +100,10 @@
     .input-group.invalid .error-message {
       display: flex;
     }
-
     @keyframes fadein {
       from { opacity: 0; }
       to   { opacity: 1; }
     }
-
-    /* ===== PASSWORD FIELD ===== */
     .password-wrapper {
       position: relative;
       width: 100%;
@@ -154,8 +134,6 @@
     .eye-toggle:focus {
       color: #7d8cff;
     }
-
-    /* ===== LOGIN BUTTON ===== */
     .login-btn {
       margin-top: 7px;
       background: linear-gradient(90deg, #7d8cff 0%, #8fd4ff 100%);
@@ -175,8 +153,83 @@
     .login-btn:active {
       background: #616e7c;
     }
-
-    /* ===== MODAL LOADING & ERROR ===== */
+    .create-account-link {
+      color: #2563eb;
+      text-align: center;
+      margin-top: -8px;
+      margin-bottom: 6px;
+      font-size: 1.01em;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      transition: color 0.17s;
+    }
+    .create-account-link:hover {
+      color: #143e8e;
+      text-decoration: underline;
+    }
+    .separator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 12px 0 8px 0;
+    }
+    .separator-line {
+      flex: 1;
+      height: 1px;
+      background: #e5e7ef;
+      border-radius: 1px;
+      margin: 0 0.8rem;
+    }
+    .separator span {
+      color: #a0a7b8;
+      font-size: 0.97rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+    .social-login {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      margin-top: 0.2rem;
+    }
+    .social-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+      border: none;
+      border-radius: 7px;
+      padding: 0.8rem 0.6rem;
+      font-size: 1.08rem;
+      font-family: inherit;
+      font-weight: 600;
+      background: #f7f8fa;
+      color: #232c38;
+      box-shadow: 0 1px 4px 0 rgba(44,62,80,0.06);
+      cursor: pointer;
+      transition: background 0.16s, box-shadow 0.16s;
+      width: 100%;
+      justify-content: left;
+    }
+    .social-btn svg {
+      height: 1.15em;
+      width: 1.15em;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .social-btn.facebook svg {
+      color: #1877f3;
+      fill: #1877f3;
+      background: #fff;
+      border-radius: 50%;
+    }
+    .social-btn.facebook:hover {
+      background: #eaf3fb;
+    }
+    .social-btn.microsoft:hover {
+      background: #e7f3f5;
+    }
     .modal {
       display: none;
       position: fixed;
@@ -227,8 +280,6 @@
       margin-top: 10px;
       animation: fadein 0.18s;
     }
-
-    /* ===== SHAKE ANIMATION FOR PANEL ===== */
     @keyframes shake {
       0% { transform: translateX(0);}
       25% { transform: translateX(-8px);}
@@ -239,8 +290,6 @@
     .login-panel.shake {
       animation: shake 0.42s cubic-bezier(.36,.07,.19,.97) both;
     }
-
-    /* ===== RESPONSIVE ===== */
     @media (max-width: 480px) {
       html, body, .login-container {
         min-height: 100vh;
@@ -315,9 +364,28 @@
         </div>
         <button class="login-btn" type="submit">Login</button>
       </form>
+      <a class="create-account-link" href="register.html">Create an account</a>
+      <div class="separator"><div class="separator-line"></div><span>or</span><div class="separator-line"></div></div>
+      <div class="social-login">
+        <button class="social-btn facebook" type="button" onclick="alert('Facebook login not yet implemented');">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="12" fill="#1877f3"/>
+            <path d="M15.36 8.5h-1.4V7.43c0-.33.27-.6.6-.6h.7V5.17l-1.03-.02c-1.59 0-2.4.98-2.4 2.36v1h-1.1V10.1h1.1v4.7h2.1V10.1h1.25l.2-1.6z" fill="#fff"/>
+          </svg>
+          Continue with Facebook
+        </button>
+        <button class="social-btn microsoft" type="button" onclick="alert('Microsoft login not yet implemented');">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect width="10" height="10" x="2" y="2" fill="#f35325"/>
+            <rect width="10" height="10" x="12" y="2" fill="#81bc06"/>
+            <rect width="10" height="10" x="2" y="12" fill="#05a6f0"/>
+            <rect width="10" height="10" x="12" y="12" fill="#ffba08"/>
+          </svg>
+          Continue with Microsoft
+        </button>
+      </div>
     </div>
   </div>
-  <!-- Modal for loading and error -->
   <div class="modal" id="modal">
     <div class="modal-content" id="modal-content">
       <div class="loader" id="modal-loader"></div>
@@ -450,7 +518,7 @@
           showModal("Login successful!");
           setTimeout(() => {
             hideModal();
-            window.location.href = "my-account.html"; // Redirect to the main page
+            window.location.href = "my-account.html";
           }, 650);
         })
         .catch((error) => {
