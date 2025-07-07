@@ -188,7 +188,6 @@
       text-align: center;
       color: var(--primary);
     }
-    /* Responsive styles */
     @media (max-width: 900px) {
       .main { margin-left: 0; }
       .sidebar {
@@ -206,7 +205,6 @@
       .card { padding: 1rem; }
       .modal { width: 95vw; padding: 1.2rem 0.5rem 1.2rem 0.5rem; }
     }
-
     /* --- Machine Monitoring Table Styles --- */
     .machine-monitor-section {
       margin-top: 32px;
@@ -249,13 +247,6 @@
       align-items: center;
       gap: 0.7em;
     }
-    .owner-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #e8eaf0;
-    }
     .owner-initials {
       width: 32px;
       height: 32px;
@@ -269,7 +260,6 @@
       font-size: 1.02rem;
       border: 2px solid #e8eaf0;
     }
-    /* Status badge styles */
     .status-badge {
       display: inline-block;
       padding: 0.37em 1.2em;
@@ -286,7 +276,6 @@
     .status-due { background: #2563eb; }
     .status-error { background: #b91c1c; }
     .status-inactive { background: #9ca3af; }
-    /* Timeline bar */
     .timeline-bar-bg {
       background: #e5e7ef;
       border-radius: 6px;
@@ -301,11 +290,15 @@
       border-radius: 6px;
       transition: width 0.4s;
     }
-    /* Due */
+    .timeline-bar-fg.status-online { background: #22c55e !important; }
+    .timeline-bar-fg.status-offline { background: #dc2626 !important; }
+    .timeline-bar-fg.status-maintenance { background: #fb923c !important; }
+    .timeline-bar-fg.status-due { background: #2563eb !important; }
+    .timeline-bar-fg.status-error { background: #b91c1c !important; }
+    .timeline-bar-fg.status-inactive { background: #9ca3af !important; }
     .due-soon { color: #fb923c; font-weight: 600; }
     .due-overdue { color: #dc2626; font-weight: 600; }
     .due-normal { color: #2563eb; }
-    /* Priority stars */
     .priority-stars {
       display: flex;
       gap: 2px;
@@ -315,7 +308,6 @@
       color: #fbbf24;
     }
     .priority-stars .star-empty { color: #e5e7eb; }
-    /* Sensor status circle */
     .sensor-indicator {
       width: 16px;
       height: 16px;
@@ -346,7 +338,6 @@
       .machine-monitor-section { padding: 8px 0 6px 0; }
     }
   </style>
-  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -354,22 +345,18 @@
     <div class="logo">AdminPanel</div>
     <nav>
       <a href="#" class="active">
-        <!-- dashboard icon -->
         <svg width="20" height="20" fill="none"><rect x="2" y="2" width="7" height="7" rx="2" fill="#fff" /><rect x="11" y="2" width="7" height="7" rx="2" fill="#fff" fill-opacity="0.7"/><rect x="2" y="11" width="7" height="7" rx="2" fill="#fff" fill-opacity="0.7"/><rect x="11" y="11" width="7" height="7" rx="2" fill="#fff"/></svg>
         Dashboard
       </a>
       <a href="#">
-        <!-- users icon -->
         <svg width="20" height="20" fill="none"><circle cx="10" cy="7" r="4" fill="#fff"/><ellipse cx="10" cy="15.5" rx="7" ry="3.5" fill="#fff" fill-opacity="0.7"/></svg>
         Users
       </a>
       <a href="#">
-        <!-- analytics icon -->
         <svg width="20" height="20" fill="none"><path d="M4 16V8M10 16V4M16 16V12" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
         Analytics
       </a>
       <a href="#">
-        <!-- settings icon -->
         <svg width="20" height="20" fill="none"><circle cx="10" cy="10" r="3" fill="#fff"/><path d="M2 10a8 8 0 0116 0" stroke="#fff" stroke-width="2"/></svg>
         Settings
       </a>
@@ -383,6 +370,7 @@
       <div class="username">Admin</div>
     </div>
     <div class="content">
+
       <div class="cards">
         <div class="card">
           <div class="card-title">Total Users</div>
@@ -409,8 +397,9 @@
           <button class="view-graph-btn" data-graph="signups">View Graph</button>
         </div>
       </div>
-      <!-- Machine Monitoring Table Section STARTS HERE -->
-      <div class="machine-monitor-section">
+
+      <!-- Live Machine Monitoring Section (DYNAMICALLY GENERATED) -->
+      <div class="machine-monitor-section" id="machine-monitor-section">
         <div style="font-size: 1.17rem; font-weight: 600; margin-bottom: 5px;">Live Machine Monitoring</div>
         <div style="color: #6b7280; font-size: 1.01rem; margin-bottom: 18px;">
           Nationwide IoT machine status overview.
@@ -428,132 +417,8 @@
                 <th>Priority</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>Vendo PH-001</td>
-                <td>
-                  <div class="owner-cell">
-                    <img class="owner-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Owner Photo" />
-                    <span>Juan Ramos</span>
-                  </div>
-                </td>
-                <td><span class="status-badge status-online">Online</span></td>
-                <td>
-                  <div class="timeline-bar-bg">
-                    <div class="timeline-bar-fg" style="width: 90%; background:#22c55e"></div>
-                  </div>
-                </td>
-                <td class="due-normal">Aug 12</td>
-                <td>
-                  <span class="sensor-indicator sensor-ok"></span>
-                  Normal
-                </td>
-                <td>
-                  <span class="priority-stars">
-                    <span>★</span><span>★</span><span>★</span><span>★</span><span class="star-empty">★</span>
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <td>IceMaker Davao-02</td>
-                <td>
-                  <div class="owner-cell">
-                    <div class="owner-initials">MH</div>
-                    <span>Maria Hizon</span>
-                  </div>
-                </td>
-                <td><span class="status-badge status-maintenance">Maintenance</span></td>
-                <td>
-                  <div class="timeline-bar-bg">
-                    <div class="timeline-bar-fg" style="width: 30%; background:#fb923c"></div>
-                  </div>
-                </td>
-                <td class="due-soon">Aug 11</td>
-                <td>
-                  <span class="sensor-indicator sensor-warning"></span>
-                  Filter Replace
-                </td>
-                <td>
-                  <span class="priority-stars">
-                    <span>★</span><span>★</span><span>★</span><span class="star-empty">★</span><span class="star-empty">★</span>
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <td>CoffeeBot Cebu-7</td>
-                <td>
-                  <div class="owner-cell">
-                    <img class="owner-avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Owner Photo" />
-                    <span>Leah Santos</span>
-                  </div>
-                </td>
-                <td><span class="status-badge status-error">Error</span></td>
-                <td>
-                  <div class="timeline-bar-bg">
-                    <div class="timeline-bar-fg" style="width: 15%; background:#b91c1c"></div>
-                  </div>
-                </td>
-                <td class="due-overdue">Overdue</td>
-                <td>
-                  <span class="sensor-indicator sensor-danger"></span>
-                  Water Leak
-                </td>
-                <td>
-                  <span class="priority-stars">
-                    <span>★</span><span>★</span><span class="star-empty">★</span><span class="star-empty">★</span><span class="star-empty">★</span>
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <td>MiniVendo Manila-5</td>
-                <td>
-                  <div class="owner-cell">
-                    <div class="owner-initials">RC</div>
-                    <span>Rico Cruz</span>
-                  </div>
-                </td>
-                <td><span class="status-badge status-offline">Offline</span></td>
-                <td>
-                  <div class="timeline-bar-bg">
-                    <div class="timeline-bar-fg" style="width: 0%; background:#9ca3af"></div>
-                  </div>
-                </td>
-                <td class="due-overdue">Overdue</td>
-                <td>
-                  <span class="sensor-indicator sensor-off"></span>
-                  No Data
-                </td>
-                <td>
-                  <span class="priority-stars">
-                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <td>WaterBot Baguio-3</td>
-                <td>
-                  <div class="owner-cell">
-                    <img class="owner-avatar" src="https://randomuser.me/api/portraits/men/54.jpg" alt="Owner Photo" />
-                    <span>Ernie Lopez</span>
-                  </div>
-                </td>
-                <td><span class="status-badge status-due">Due</span></td>
-                <td>
-                  <div class="timeline-bar-bg">
-                    <div class="timeline-bar-fg" style="width: 60%; background:#2563eb"></div>
-                  </div>
-                </td>
-                <td class="due-soon">Aug 15</td>
-                <td>
-                  <span class="sensor-indicator sensor-warning"></span>
-                  Clean Sensor
-                </td>
-                <td>
-                  <span class="priority-stars">
-                    <span>★</span><span>★</span><span>★</span><span>★</span><span class="star-empty">★</span>
-                  </span>
-                </td>
-              </tr>
+            <tbody id="machine-monitor-tbody">
+              <tr><td colspan="7" style="text-align:center;color:#9ca3af;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -561,13 +426,13 @@
           * Table updates in real time with your IoT data.
         </div>
       </div>
-      <!-- Machine Monitoring Table Section ENDS HERE -->
+      <!-- Live Machine Monitoring Section END -->
+
       <div class="chart" style="margin-top: 40px;">
         <!-- You can keep this for analytics or remove if not needed -->
       </div>
     </div>
   </div>
-  <!-- Modal for Graph -->
   <div class="modal-bg" id="modalBg">
     <div class="modal">
       <button class="close-btn" id="closeModal">&times;</button>
@@ -595,7 +460,6 @@
     const modalChart = document.getElementById('modalChart');
     let chartInstance = null;
 
-    // Sample data for each graph
     const graphData = {
       users: {
         title: 'Total Users (Last 6 Months)',
@@ -629,7 +493,6 @@
         const { title, labels, data, color } = graphData[graphKey];
         modalTitle.textContent = title;
 
-        // Destroy previous chart if any
         if(chartInstance) chartInstance.destroy();
 
         chartInstance = new Chart(modalChart, {
@@ -664,14 +527,106 @@
       modalBg.classList.remove('active');
       if(chartInstance) chartInstance.destroy();
     });
-
-    // Close modal when clicking outside modal
     modalBg.addEventListener('click', (e) => {
       if(e.target === modalBg) {
         modalBg.classList.remove('active');
         if(chartInstance) chartInstance.destroy();
       }
     });
+  </script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyAPbO30PsELuvnHepjAUwP21HbvQ4j3m4E",
+      authDomain: "pulsed-protoype.firebaseapp.com",
+      projectId: "pulsed-protoype",
+      storageBucket: "pulsed-protoype.firebasestorage.app",
+      messagingSenderId: "793278394093",
+      appId: "1:793278394093:web:3837b7410549753aff66e4",
+      measurementId: "G-ZXRW2TC82P"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function getInitials(name) {
+      if (!name) return "U";
+      const parts = name.trim().split(' ');
+      if (parts.length === 1) return parts[0][0].toUpperCase();
+      return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+    }
+
+    // Priority: 1 = Normal (best), 5 = Error (worst)
+    const statusArr = [
+      {label: "Normal", cls: "status-online", timeline: 0.9, due: "Aug 12", dueCls:"due-normal", sensor: "Normal", sensorCls: "sensor-ok", timelineFg: "status-online", priority: 1},
+      {label: "Maintenance", cls: "status-maintenance", timeline: 0.3, due: "Aug 11", dueCls:"due-soon", sensor: "Filter Replace", sensorCls: "sensor-warning", timelineFg: "status-maintenance", priority: 2},
+      {label: "Due", cls: "status-due", timeline: 0.6, due: "Aug 15", dueCls:"due-soon", sensor: "Clean Sensor", sensorCls: "sensor-warning", timelineFg: "status-due", priority: 3},
+      {label: "Offline", cls: "status-offline", timeline: 0, due: "Overdue", dueCls:"due-overdue", sensor: "No Data", sensorCls: "sensor-off", timelineFg: "status-offline", priority: 4},
+      {label: "Error", cls: "status-error", timeline: 0.15, due: "Overdue", dueCls:"due-overdue", sensor: "Water Leak", sensorCls: "sensor-danger", timelineFg: "status-error", priority: 5}
+    ];
+    function randomStatus() {
+      return statusArr[Math.floor(Math.random()*statusArr.length)];
+    }
+    function renderStars(priority) {
+      let html = '';
+      for(let i=1;i<=5;i++)
+        html += `<span${i<=priority?'':' class="star-empty"'}>★</span>`;
+      return `<span class="priority-stars">${html}</span>`;
+    }
+    async function loadMachineMonitoring() {
+      const machinesTbody = document.getElementById('machine-monitor-tbody');
+      machinesTbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#9ca3af;">Loading...</td></tr>`;
+      try {
+        const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+          machinesTbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#9ca3af;">No machines found.</td></tr>`;
+          return;
+        }
+        let userMachines = [];
+        snapshot.forEach(doc => {
+          const u = doc.data();
+          let stat = randomStatus();
+          userMachines.push({
+            username: u.username || "N/A",
+            machineNumber: u.machineNumber || "N/A",
+            status: stat.label, statusCls: stat.cls,
+            timeline: stat.timeline, due: stat.due, dueCls: stat.dueCls,
+            sensor: stat.sensor, sensorCls: stat.sensorCls,
+            timelineFg: stat.timelineFg,
+            priority: stat.priority
+          });
+        });
+        // Sort by priority DESC (Error at the top)
+        userMachines.sort((a, b) => b.priority - a.priority);
+        machinesTbody.innerHTML = userMachines.map(u => `
+          <tr>
+            <td>${u.machineNumber}</td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-initials">${getInitials(u.username)}</div>
+                <span>${u.username}</span>
+              </div>
+            </td>
+            <td><span class="status-badge ${u.statusCls}">${u.status}</span></td>
+            <td>
+              <div class="timeline-bar-bg">
+                <div class="timeline-bar-fg ${u.timelineFg}" style="width: ${Math.round(u.timeline*100)}%;"></div>
+              </div>
+            </td>
+            <td class="${u.dueCls}">${u.due}</td>
+            <td>
+              <span class="sensor-indicator ${u.sensorCls}"></span>
+              ${u.sensor}
+            </td>
+            <td>${renderStars(u.priority)}</td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        machinesTbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#ff3860;">Failed to load machines: ${e.message}</td></tr>`;
+      }
+    }
+    loadMachineMonitoring();
   </script>
 </body>
 </html>
